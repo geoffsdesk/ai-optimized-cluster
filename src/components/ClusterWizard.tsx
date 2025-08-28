@@ -276,3 +276,105 @@ export const ClusterWizard: React.FC<ClusterWizardProps> = ({ onComplete }) => {
                 <div className="bg-blue-50 p-4 rounded-lg">
                   <h4 className="font-medium text-blue-900 mb-3">Generated Configuration</h4>
                   <div className="grid grid-cols-2 gap-4 text-sm">
+                     <div>
+                       <span className="text-blue-600">Region:</span>
+                       <span className="ml-2 font-medium">{clusterConfig.region}</span>
+                     </div>
+                     <div>
+                       <span className="text-blue-600">Machine Type:</span>
+                       <span className="ml-2 font-medium">{clusterConfig.machineType}</span>
+                     </div>
+                     <div>
+                       <span className="text-blue-600">GPU Count:</span>
+                       <span className="ml-2 font-medium">{clusterConfig.gpuCount}</span>
+                     </div>
+                     <div>
+                       <span className="text-blue-600">Monthly Cost:</span>
+                       <span className="ml-2 font-medium">${clusterConfig.costEstimate.monthlyCost.toLocaleString()}</span>
+                     </div>
+                   </div>
+                 </div>
+
+                 {validationResult && (
+                   <div className={`p-4 rounded-lg border ${
+                     validationResult.isValid ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
+                   }`}>
+                     <h4 className={`font-medium mb-2 ${
+                       validationResult.isValid ? 'text-green-900' : 'text-red-900'
+                     }`}>
+                       Configuration Validation
+                     </h4>
+                     {validationResult.isValid ? (
+                       <p className="text-green-700">Configuration is valid and ready for deployment!</p>
+                     ) : (
+                       <div>
+                         <p className="text-red-700 mb-2">Configuration has issues:</p>
+                         <ul className="text-red-700 text-sm space-y-1">
+                           {validationResult.errors.map((error, index) => (
+                             <li key={index}>• {error}</li>
+                           ))}
+                         </ul>
+                       </div>
+                     )}
+                   </div>
+                 )}
+
+                 <button
+                   onClick={handleComplete}
+                   disabled={!validationResult?.isValid}
+                   className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white px-6 py-3 rounded-lg font-medium"
+                 >
+                   Deploy Cluster
+                 </button>
+               </div>
+             )}
+           </div>
+         );
+
+       default:
+         return null;
+     }
+   };
+
+   return (
+     <div className="bg-white rounded-lg shadow-lg p-6">
+       <div className="flex items-center mb-6">
+         <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+           <span className="text-blue-600 font-semibold">2</span>
+         </div>
+         <div>
+           <h2 className="text-2xl font-semibold text-gray-900">Cluster Configuration Wizard</h2>
+           <p className="text-gray-600">Configure your AI-optimized GKE cluster</p>
+         </div>
+       </div>
+
+       <div className="mb-6">
+         <div className="flex items-center space-x-4">
+           {steps.map((step, index) => (
+             <div key={index} className="flex items-center">
+               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                 index <= currentStep 
+                   ? 'bg-blue-500 text-white' 
+                   : 'bg-gray-200 text-gray-500'
+               }`}>
+                 {index + 1}
+               </div>
+               <span className={`ml-2 text-sm ${
+                 index <= currentStep ? 'text-blue-600 font-medium' : 'text-gray-400'
+               }`}>
+                 {step.title}
+               </span>
+               {index < steps.length - 1 && (
+                 <ChevronRight className="w-4 h-4 text-gray-300 ml-2" />
+               )}
+             </div>
+           ))}
+         </div>
+       </div>
+
+       <div className="min-h-[400px]">
+         {renderStepContent()}
+       </div>
+     </div>
+   );
+ };

@@ -23,10 +23,24 @@ export const PrerequisitesChecker: React.FC<PrerequisitesCheckerProps> = ({ onCo
       const results = await manager.checkPrerequisites();
       setChecks(results);
       
+      console.log('Prerequisites check results:', results);
+      
       // Auto-complete if all checks pass
       if (results.apiEnabled && results.iamRoles.length === 0 && 
           results.gcloudInstalled && results.regionSet && results.billingEnabled) {
-        setTimeout(() => onComplete(), 1500);
+        console.log('All prerequisites met, auto-advancing in 1.5 seconds...');
+        setTimeout(() => {
+          console.log('Calling onComplete...');
+          onComplete();
+        }, 1500);
+      } else {
+        console.log('Some prerequisites failed:', {
+          apiEnabled: results.apiEnabled,
+          iamRoles: results.iamRoles,
+          gcloudInstalled: results.gcloudInstalled,
+          regionSet: results.regionSet,
+          billingEnabled: results.billingEnabled
+        });
       }
     } catch (error) {
       console.error('Error checking prerequisites:', error);

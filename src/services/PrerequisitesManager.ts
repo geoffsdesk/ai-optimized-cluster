@@ -3,6 +3,10 @@ import { PrerequisitesCheck } from '../types';
 export class PrerequisitesManager {
   private projectId: string = '';
   private region: string = '';
+  private apisEnabled: boolean = false;
+  private iamRolesFixed: boolean = false;
+  private gcloudInstalled: boolean = false;
+  private billingEnabled: boolean = false;
 
   async checkPrerequisites(): Promise<PrerequisitesCheck> {
     try {
@@ -27,24 +31,28 @@ export class PrerequisitesManager {
     
     if (!issues.apiEnabled) {
       await this.enableRequiredAPIs();
+      this.apisEnabled = true; // Mark as fixed
     }
     
     if (issues.iamRoles.length > 0) {
       await this.setupIAMRoles(issues.iamRoles);
+      this.iamRolesFixed = true; // Mark as fixed
     }
     
     if (!issues.gcloudInstalled) {
       await this.installGcloudCLI();
+      this.gcloudInstalled = true; // Mark as fixed
     }
     
     if (!issues.billingEnabled) {
       await this.enableBilling();
+      this.billingEnabled = true; // Mark as fixed
     }
   }
   
   private async checkProjectId(): Promise<Partial<PrerequisitesCheck>> {
     // Simulate checking if project ID is set
-    this.projectId = process.env.GOOGLE_CLOUD_PROJECT || 'your-project-id';
+    this.projectId = 'your-project-id';
     return { projectId: this.projectId };
   }
   
@@ -57,7 +65,11 @@ export class PrerequisitesManager {
       'storage.googleapis.com'
     ];
     
-    // Simulate API check - in real implementation, this would call GCP APIs
+    // Use the fixed state if available, otherwise simulate some APIs not enabled
+    if (this.apisEnabled) {
+      return { apiEnabled: true };
+    }
+    
     const enabledAPIs = await this.getEnabledAPIs();
     const allEnabled = requiredAPIs.every(api => enabledAPIs.includes(api));
     
@@ -71,7 +83,11 @@ export class PrerequisitesManager {
       'roles/iam.serviceAccountAdmin'
     ];
     
-    // Simulate IAM role check
+    // Use the fixed state if available, otherwise simulate missing roles
+    if (this.iamRolesFixed) {
+      return { iamRoles: [] };
+    }
+    
     const userRoles = await this.getUserRoles();
     const missingRoles = requiredRoles.filter(role => !userRoles.includes(role));
     
@@ -79,19 +95,27 @@ export class PrerequisitesManager {
   }
   
   private async checkGcloudCLI(): Promise<Partial<PrerequisitesCheck>> {
-    // Simulate gcloud CLI check
+    // Use the fixed state if available, otherwise simulate not installed
+    if (this.gcloudInstalled) {
+      return { gcloudInstalled: true };
+    }
+    
     const isInstalled = await this.checkGcloudInstallation();
     return { gcloudInstalled: isInstalled };
   }
   
   private async checkRegionConfig(): Promise<Partial<PrerequisitesCheck>> {
     // Simulate region configuration check
-    this.region = process.env.GOOGLE_CLOUD_REGION || 'us-central1';
+    this.region = 'us-central1';
     return { regionSet: !!this.region };
   }
   
   private async checkBilling(): Promise<Partial<PrerequisitesCheck>> {
-    // Simulate billing check
+    // Use the fixed state if available, otherwise simulate not enabled
+    if (this.billingEnabled) {
+      return { billingEnabled: true };
+    }
+    
     const billingEnabled = await this.checkBillingStatus();
     return { billingEnabled };
   }
@@ -109,38 +133,46 @@ export class PrerequisitesManager {
   
   // Mock implementations for demonstration
   private async getEnabledAPIs(): Promise<string[]> {
+    // Simulate some APIs enabled, some not
     return ['container.googleapis.com', 'compute.googleapis.com'];
   }
   
   private async getUserRoles(): Promise<string[]> {
+    // Simulate missing some roles
     return ['roles/container.admin'];
   }
   
   private async checkGcloudInstallation(): Promise<boolean> {
-    return true; // Mock: assume installed
+    // Simulate gcloud not installed
+    return false;
   }
   
   private async checkBillingStatus(): Promise<boolean> {
-    return true; // Mock: assume enabled
+    // Simulate billing NOT enabled
+    return false;
   }
   
   private async enableRequiredAPIs(): Promise<void> {
     console.log('Enabling required APIs...');
-    // Implementation would call GCP APIs
+    // Simulate API enablement
+    await new Promise(resolve => setTimeout(resolve, 1000));
   }
   
   private async setupIAMRoles(roles: string[]): Promise<void> {
     console.log(`Setting up IAM roles: ${roles.join(', ')}`);
-    // Implementation would call GCP IAM APIs
+    // Simulate IAM role setup
+    await new Promise(resolve => setTimeout(resolve, 1000));
   }
   
   private async installGcloudCLI(): Promise<void> {
     console.log('Installing gcloud CLI...');
-    // Implementation would provide installation instructions
+    // Simulate gcloud installation
+    await new Promise(resolve => setTimeout(resolve, 1000));
   }
   
   private async enableBilling(): Promise<void> {
     console.log('Enabling billing...');
-    // Implementation would call GCP billing APIs
+    // Simulate billing enablement
+    await new Promise(resolve => setTimeout(resolve, 1000));
   }
 }
